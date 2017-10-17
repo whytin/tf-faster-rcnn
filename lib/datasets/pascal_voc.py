@@ -22,26 +22,27 @@ import uuid
 from .voc_eval import voc_eval
 from model.config import cfg
 
+##pascal_voc(split, year)   split='test' year='2007'
 
 class pascal_voc(imdb):
   def __init__(self, image_set, year, use_diff=False):
-    name = 'voc_' + year + '_' + image_set
+    name = 'voc_' + year + '_' + image_set ##name='voc_2007_test'
     if use_diff:
       name += '_diff'
     imdb.__init__(self, name)
     self._year = year
     self._image_set = image_set
-    self._devkit_path = self._get_default_path()
-    self._data_path = os.path.join(self._devkit_path, 'VOC' + self._year)
+    self._devkit_path = self._get_default_path() ## 'VOCdevkit2007/'
+    self._data_path = os.path.join(self._devkit_path, 'VOC' + self._year) ## 'VOCdevkit2007/VOC2007/'
     self._classes = ('__background__',  # always index 0
                      'aeroplane', 'bicycle', 'bird', 'boat',
                      'bottle', 'bus', 'car', 'cat', 'chair',
                      'cow', 'diningtable', 'dog', 'horse',
                      'motorbike', 'person', 'pottedplant',
                      'sheep', 'sofa', 'train', 'tvmonitor')
-    self._class_to_ind = dict(list(zip(self.classes, list(range(self.num_classes)))))
+    self._class_to_ind = dict(list(zip(self.classes, list(range(self.num_classes))))) ## {0:'__background__', 1:'aeroplane',....}
     self._image_ext = '.jpg'
-    self._image_index = self._load_image_set_index()
+    self._image_index = self._load_image_set_index() ##[00001, 00002, 00003, ....]
     # Default to roidb handler
     self._roidb_handler = self.gt_roidb
     self._salt = str(uuid.uuid4())
@@ -82,7 +83,7 @@ class pascal_voc(imdb):
     # Example path to image set file:
     # self._devkit_path + /VOCdevkit2007/VOC2007/ImageSets/Main/val.txt
     image_set_file = os.path.join(self._data_path, 'ImageSets', 'Main',
-                                  self._image_set + '.txt')
+                                  self._image_set + '.txt') 
     assert os.path.exists(image_set_file), \
       'Path does not exist: {}'.format(image_set_file)
     with open(image_set_file) as f:
@@ -111,7 +112,7 @@ class pascal_voc(imdb):
       print('{} gt roidb loaded from {}'.format(self.name, cache_file))
       return roidb
 
-    gt_roidb = [self._load_pascal_annotation(index)
+    gt_roidb = [self._load_pascal_annotation(index)  ##  return {'boxes': boxes, 'gt_classes': gt_classes, 'gt_overlaps': overlaped,  'flipped': False, 'seg_areas': seg_areas}
                 for index in self.image_index]
     with open(cache_file, 'wb') as fid:
       pickle.dump(gt_roidb, fid, pickle.HIGHEST_PROTOCOL)
